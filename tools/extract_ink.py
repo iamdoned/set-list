@@ -94,4 +94,4 @@ if __name__ == '__main__':
             r[25:25 + a.shape[0], 10:10 + a.shape[1]] = (245 * (1 - a[..., None]) + 30 * a[..., None]).astype(np.uint8)
             cv2.putText(r, p.split('/')[-1], (10, 18), 0, .55, (0, 0, 200), 1); rows.append(r)
         cv2.imwrite(o.sheet, np.vstack(rows))
-    for p, _ in made: print(p)
+    for p, a in made: print(f'{p}  w={a.shape[1]} h={a.shape[0]}')

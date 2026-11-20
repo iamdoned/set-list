@@ -35,15 +35,19 @@
   document.title = show.title ? `${show.title} · 셋리스트` : '셋리스트';
 
   // ---------- image sizes ----------
-  const size = src => new Promise(res => { const i = new Image(); i.onload = () => res([i.naturalWidth, i.naturalHeight]); i.onerror = () => res([600, 160]); i.src = src; });
+  const size = (src, tries = 3) => new Promise(res => { const i = new Image(); i.onload = () => res([i.naturalWidth, i.naturalHeight]); i.onerror = () => tries > 1 ? setTimeout(() => size(src, tries - 1).then(res), 400) : res([1200, 150]); i.src = src; });
   // CSS resolves url() inside custom properties against the stylesheet, so pass absolute URLs
   const abs = src => new URL(src, location.href).href;
   const ink = (src, [w, h], cls = '', alt = '') =>
     `<span class="ink ${cls}" ${alt ? `role="img" aria-label="${esc(alt)}"` : ''} style="--src:url('${abs(src)}');--w:${w};--h:${h}"></span>`;
   const esc = s => String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
-  const songSizes = await Promise.all(songs.map(s => size(s.src)));
-  const subjSizes = await Promise.all((show.subject?.words || []).map(size));
-  const headSize = show.heading ? await size(show.heading.src) : null;
+  // width/height come from show.json (w, h) so nothing depends on an image finishing loading;
+  // only images without them are measured here.
+  const dims = o => (o.w && o.h) ? Promise.resolve([o.w, o.h]) : size(o.src);
+  const subjWords = (show.subject?.words || []).map(w => typeof w === 'string' ? {src: w} : w);
+  const songSizes = await Promise.all(songs.map(dims));
+  const subjSizes = await Promise.all(subjWords.map(dims));
+  const headSize = show.heading ? await dims(show.heading) : null;
   const maxw = Math.max(...songSizes.map(s => s[0]), 600);
   body.style.setProperty('--maxw', maxw);
   body.style.setProperty('--n', N);
@@ -55,8 +59,8 @@
 <main>
   <section id="home">
     ${show.heading ? `<h1 class="heading">${ink(show.heading.src, headSize, '', show.heading.alt)}</h1>` : ''}
-    ${show.subject ? `<p class="subject" role="img" aria-label="${esc(show.subject.alt || '')}">${show.subject.words.map((w, i) => ink(w, subjSizes[i])).join('')}</p>` : ''}
-    ${handle ? `<a class="insta hand" href="https://www.instagram.com/${encodeURIComponent(show.instagram)}/"><b class="w">${esc(handle)}</b></a>` : ''}
+    ${show.subject ? `<p class="subject" role="img" aria-label="${esc(show.subject.alt || '')}">${subjWords.map((w, i) => ink(w.src, subjSizes[i])).join('')}</p>` : ''}
+    ${handle ? `<a class="insta hand" href="${esc(show.instagramUrl || `https://www.instagram.com/${encodeURIComponent(show.instagram)}/`)}" target="_blank" rel="noopener"><b class="w">${esc(handle)}</b></a>` : ''}
     <ul class="list" id="list">${songs.map((s, i) => `<li><button type="button" data-i="${i}" aria-label="${i + 1}. ${esc(s.title)}">${ink(s.src, songSizes[i])}<svg class="mark" aria-hidden="true"><path class="ul"/><path class="ov"/></svg></button></li>`).join('')}</ul>
     <canvas id="gl" class="staff" aria-hidden="true"></canvas>
   </section>
@@ -116,8 +120,9 @@
 
   // ---------- state + routing ----------
   const LEVEL = show.staff?.levels || songs.map((_, i) => .1 + .26 * i / Math.max(1, N - 1));
-  let cur = -1, target = .08, stage = false;
-  function mark(i) { cur = i; btns.forEach((b, j) => b.classList.toggle('on', j === i)); target = i < 0 ? .08 : (LEVEL[i] ?? .2); }
+  const IDLE = show.staff?.idle ?? .2;
+  let cur = -1, target = IDLE, stage = false;
+  function mark(i) { cur = i; btns.forEach((b, j) => b.classList.toggle('on', j === i)); target = i < 0 ? IDLE : (LEVEL[i] ?? IDLE); }
   function openSong(i) {
     const s = songs[i], [w, h] = songSizes[i], b = $('bigTitle');
     b.style.cssText = `--src:url('${abs(s.src)}');--w:${w};--h:${h}`; b.setAttribute('aria-label', `${i + 1}. ${s.title}`);
@@ -176,8 +181,8 @@
     float gap=14.;float base=H*.5-2.*gap;float a=0.;
     for(int i=0;i<5;i++){float l=float(i);
       float y=base+l*gap
-        +sin(px.x*.012+t*.55+l*.7)*k*16.*(1.+l*.15)
-        +sin(px.x*.037-t*.8*(1.+l*.2))*k*5.
+        +sin(px.x*.012+t*.9+l*.7)*k*16.*(1.+l*.15)
+        +sin(px.x*.037-t*1.2*(1.+l*.2))*k*5.
         +sin(px.x*.15+t*2.1+l*2.)*k*1.2;
       a+=smoothstep(1.4,.2,abs(px.y-y))*(al+.08*l);}
     gl_FragColor=vec4(c,clamp(a,0.,.9));}`;
@@ -195,11 +200,11 @@
   const alpha = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--staff-alpha')) || .55;
   let rgb = col(), al = alpha();
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { rgb = col(); });
-  let k = .08; const t0 = performance.now();
+  let k = IDLE; const t0 = performance.now();
   const frame = now => {
     k += (target - k) * .025;
     gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
-    gl.uniform2f(U.r, cv.width, cv.height); gl.uniform1f(U.t, still ? 0 : (now - t0) / 1000); gl.uniform1f(U.k, k);
+    gl.uniform2f(U.r, cv.width, cv.height); gl.uniform1f(U.t, (now - t0) / 1000 * (still ? .35 : 1));  // reduced motion: slower, not frozen gl.uniform1f(U.k, k);
     gl.uniform1f(U.d, dpr); gl.uniform3f(U.c, ...rgb); gl.uniform1f(U.al, al);
     gl.drawArrays(gl.TRIANGLES, 0, 3); requestAnimationFrame(frame);
   };

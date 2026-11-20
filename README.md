@@ -74,11 +74,12 @@ tools/             사진에서 손글씨를 따는 도구들
 | `title`, `date`, `event` | 공연 이름, 날짜, 종류. 목록과 브라우저 탭에 쓰여요 |
 | `theme` | `themes/` 안의 파일 이름 |
 | `instagram` | 아이디 (`@` 없이). 비우면 표시 안 함 |
+| `instagramUrl` | (선택) 아이디를 눌렀을 때 열 주소. 비우면 `instagram.com/아이디` |
 | `lyricsFont` | 가사 글씨체(Google Fonts 이름). 비우면 테마 기본값 |
 | `heading` | 셋리스트 제목 손글씨 `{src, alt}` |
 | `subject` | 주제 문장 단어 이미지들 `{alt, words: [...]}` |
-| `staff.levels` | 곡마다 오선이 흔들리는 정도 (0.1 잔잔 ~ 0.4 꽤 출렁) |
-| `songs` | `{title, src, lyrics}` 목록 |
+| `staff.idle`, `staff.levels` | 목록 화면과 곡마다 오선이 흔들리는 정도 (0.2 잔잔 ~ 0.5 꽤 출렁) |
+| `songs` | `{title, src, w, h, lyrics}` 목록. `w`, `h`는 이미지 크기(픽셀). `extract_ink.py`가 출력해줘요 |
 | `url` | (선택) QR에 넣을 주소를 고정하고 싶을 때. 비우면 현재 페이지 주소 |
 
 ## 테마
