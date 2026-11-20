@@ -60,7 +60,12 @@ tools/             사진에서 손글씨를 따는 도구들
 
 4. **`show.json` 채우기**: 곡 순서, 제목(화면 읽기용 텍스트), 손글씨 이미지 경로, 가사를 적어요. 가사는 줄마다 `\n`, 절 사이는 빈 줄(`\n\n`)로 나눠요.
 
-5. **올리기**: `main`에 푸시하면 GitHub Actions가 알아서 배포해요.
+5. **올리기**: 사이트는 `gh-pages` 브랜치에서 배포돼요. `main`에 커밋한 다음 같은 내용을 `gh-pages`에도 올리면 1분쯤 뒤에 반영돼요.
+
+   ```
+   git push origin main
+   git push origin main:gh-pages
+   ```
 
 ## show.json 항목
 
