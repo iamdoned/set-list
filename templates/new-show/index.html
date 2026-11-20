@@ -6,9 +6,19 @@
 <title>셋리스트</title>
 <meta property="og:title" content="셋리스트">
 <meta property="og:description" content="노래 제목을 누르면 가사가 열려요">
-<link rel="stylesheet" href="../../engine/setlist.css">
-<script src="../../engine/vendor/qrcode.js" defer></script>
-<script src="../../engine/setlist.js" defer></script>
+<script>
+/* Load the engine with a version stamp so phones never mix an old cached engine with new show data. */
+(function(){
+  var R='../../';
+  function go(v){
+    var q='?v='+encodeURIComponent(v);
+    var l=document.createElement('link');l.rel='stylesheet';l.href=R+'engine/setlist.css'+q;document.head.appendChild(l);
+    document.documentElement.dataset.v=v;
+    [R+'engine/vendor/qrcode.js'+q,R+'engine/setlist.js'+q].reduce(function(p,src){return p.then(function(){return new Promise(function(ok){var s=document.createElement('script');s.src=src;s.onload=s.onerror=ok;document.head.appendChild(s);});});},Promise.resolve());
+  }
+  fetch(R+'engine/version.json',{cache:'no-store'}).then(function(r){return r.json()}).then(function(j){go(j.v)}).catch(function(){go(Date.now())});
+})();
+</script>
 </head>
 <body data-show="show.json" data-root="../../"></body>
 </html>

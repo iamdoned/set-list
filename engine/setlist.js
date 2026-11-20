@@ -13,7 +13,8 @@
 (async () => {
   const body = document.body;
   const ROOT = body.dataset.root || '../../';
-  const show = await (await fetch(body.dataset.show || 'show.json', {cache: 'no-cache'})).json();
+  const show = await (await fetch(body.dataset.show || 'show.json', {cache: 'no-store'})).json();
+  const V = document.documentElement.dataset.v ? `?v=${document.documentElement.dataset.v}` : '';
   const songs = show.songs || [];
   const N = songs.length;
 
@@ -21,7 +22,7 @@
   const themeName = new URLSearchParams(location.search).get('theme') || show.theme || 'paper';
   await new Promise(res => {
     const l = document.createElement('link');
-    l.rel = 'stylesheet'; l.href = `${ROOT}themes/${themeName}.css`;
+    l.rel = 'stylesheet'; l.href = `${ROOT}themes/${themeName}.css${V}`;
     l.onload = l.onerror = res; document.head.appendChild(l);
   });
   const fontVar = getComputedStyle(document.documentElement).getPropertyValue('--lyrics-font').trim().replace(/["']/g, '');
@@ -120,7 +121,7 @@
 
   // ---------- state + routing ----------
   const LEVEL = show.staff?.levels || songs.map((_, i) => .1 + .26 * i / Math.max(1, N - 1));
-  const IDLE = show.staff?.idle ?? .2;
+  const IDLE = show.staff?.idle ?? .3;
   let cur = -1, target = IDLE, stage = false;
   function mark(i) { cur = i; btns.forEach((b, j) => b.classList.toggle('on', j === i)); target = i < 0 ? IDLE : (LEVEL[i] ?? IDLE); }
   function openSong(i) {
