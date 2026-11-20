@@ -1,0 +1,11 @@
+/* midnight — a dark stage: chalk-white handwriting, rose staff. Always dark. */
+:root{
+  color-scheme:dark;
+  --bg:#121116;
+  --ink:#efe9df;
+  --mark:#f2a7bd;
+  --staff:#e58aa8;
+  --staff-alpha:.7;
+  --lyrics-font:"Nanum Brush Script";
+  --lyrics-size:clamp(25px,6.6vw,31px);
+}

@@ -1,0 +1,12 @@
+{
+  "title": "공연 제목",
+  "date": "2026-01-01",
+  "event": "오픈마이크",
+  "theme": "paper",
+  "instagram": "wanydepp",
+  "heading": {"src": "ink/title.png", "alt": "셋리스트"},
+  "subject": {"alt": "주제 문장을 그대로 적기", "words": ["ink/theme-1.png"]},
+  "songs": [
+    {"title": "첫 곡 제목", "src": "ink/song-1.png", "lyrics": "첫 줄\n둘째 줄\n\n다음 절 첫 줄"}
+  ]
+}

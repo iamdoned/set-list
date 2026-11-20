@@ -1,0 +1,67 @@
+/* Set-list engine styles. Colours and fonts come from a theme file in /themes. */
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--ink);overflow-x:clip;-webkit-tap-highlight-color:transparent;
+  --u:min(.3px,calc((100vw - 48px)/var(--maxw,1400)))}
+main{position:relative;max-width:720px;margin:0 auto;padding:clamp(40px,8vh,88px) 24px 32px}
+[hidden]{display:none!important}
+
+/* handwriting images, tinted by the theme's ink colour */
+.ink{display:block;background:var(--ink);-webkit-mask:var(--src) center/100% 100% no-repeat;mask:var(--src) center/100% 100% no-repeat;width:calc(var(--u)*var(--w));aspect-ratio:var(--w)/var(--h)}
+.heading{margin:0}
+.subject{margin:clamp(22px,4vh,40px) 0 0;display:flex;flex-wrap:wrap;column-gap:calc(var(--u)*37);row-gap:calc(var(--u)*16)}
+.subject .ink{width:calc(var(--u)*.8*var(--w))}
+
+/* typed text that should look hand-written (lyrics, handle) */
+.hand{font-family:var(--lyrics-font),cursive;color:var(--ink);filter:url(#pencil)}
+.hand .w{font-weight:inherit;white-space:nowrap}
+.hand i{font-style:normal;display:inline-block;white-space:pre}
+.insta{display:inline-block;margin:clamp(14px,3vh,24px) 0 0 -6px;padding:6px;text-decoration:none;font-size:calc(var(--lyrics-size) * 1.1);line-height:1.2}
+.insta:focus-visible{outline:2px solid var(--staff)}
+
+/* song list with pencil marks */
+.list{list-style:none;margin:clamp(30px,6vh,64px) 0 0;padding:0;display:grid;gap:calc(var(--u)*70)}
+.list button,.navbtn{all:unset;cursor:pointer;position:relative;display:block;padding:8px 6px;margin:-8px -6px;border-radius:8px}
+.list button:focus-visible,.navbtn:focus-visible{outline:2px solid var(--staff);outline-offset:2px}
+.list .ink{position:relative;transition:opacity .4s}
+.mark{position:absolute;left:-24px;top:-32%;width:calc(100% + 44px);height:156%;overflow:visible;pointer-events:none;filter:url(#pencil)}
+.mark path{fill:none;stroke:var(--mark);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:var(--l,3000);stroke-dashoffset:var(--l,3000);transition:stroke-dashoffset .75s cubic-bezier(.45,.05,.3,1)}
+.mark .ul{opacity:.75;transition-duration:.45s}
+@media(hover:hover){.list button:hover .ul{stroke-dashoffset:0}}
+.list button.on .ul{stroke-dashoffset:var(--l,3000);transition-duration:.2s}
+.list button.on .ov{stroke-dashoffset:0}
+
+/* the five-line staff */
+.staff{display:block;width:100vw;margin-left:calc(50% - 50vw);height:190px;pointer-events:none}
+#home .staff{margin-top:clamp(8px,2vh,24px)}
+#song .staff{margin-top:clamp(16px,4vh,40px)}
+
+/* song view */
+#song{display:none}
+body.song #home{display:none}
+body.song #song{display:block;animation:rise .6s cubic-bezier(.2,.7,.2,1)}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}}
+#song .big{--u:min(.5px,calc((100vw - 48px)/var(--maxw,1400)));margin-top:clamp(20px,10vh,120px)}
+.lyrics{margin:clamp(26px,5vh,48px) 0 0;font-size:var(--lyrics-size);line-height:1.75}
+.lyrics p{margin:0 0 1.15em}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:clamp(40px,10vh,100px)}
+.navbtn{display:grid;place-items:center;width:48px;height:48px;margin:0;padding:0}
+.navbtn svg{width:30px;height:30px;stroke:var(--ink);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+#close{position:absolute;top:clamp(20px,4vh,40px);right:16px}
+
+/* stage (iPad) */
+.qr{display:none}
+body.stage main{max-width:none;padding:6vh 6vw 24px;display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:5vw;align-items:start}
+body.stage{--u:min(.62px,calc(60vw/var(--maxw,1400)),calc(56vh/(var(--n,5)*228 - 70)))}
+body.stage .heading,body.stage .subject,body.stage .insta{display:none}
+body.stage .list{margin-top:0}
+body.stage .staff{margin-left:-6vw}
+body.stage .list .ink{opacity:.28}
+body.stage .list button.on .ink{opacity:1}
+body.stage .qr{display:grid;justify-items:center;gap:14px;grid-column:2;grid-row:1;padding-top:2vh}
+.qrbox{width:min(26vw,40vh);aspect-ratio:1;background:#f7f4ec;border-radius:12px;padding:4%}
+.qrbox svg{display:block;width:100%;height:100%}
+.qrbox path{fill:#1b1a18} /* always dark on light: phone cameras read that best */
+.qr .handle{font-size:clamp(26px,3vw,40px)}
+
+@media(prefers-reduced-motion:reduce){.mark path,body.song #song{transition:none;animation:none}}

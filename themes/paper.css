@@ -1,0 +1,11 @@
+/* paper — warm staff paper, graphite ink, plum staff. Follows the device's light/dark setting. */
+:root{
+  color-scheme:light dark;
+  --bg:light-dark(#f3ede2,#17141a);
+  --ink:light-dark(#26211d,#ece5da);
+  --mark:var(--ink);
+  --staff:light-dark(#993556,#e58aa8);
+  --staff-alpha:.55;
+  --lyrics-font:"Nanum Brush Script";
+  --lyrics-size:clamp(25px,6.6vw,31px);
+}

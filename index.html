@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>셋리스트 · wanydepp</title>
+<link rel="stylesheet" href="themes/paper.css">
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Brush+Script&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink)}
+main{max-width:720px;margin:0 auto;padding:clamp(40px,8vh,88px) 24px 48px;font-family:var(--lyrics-font),cursive}
+h1{font-weight:400;font-size:clamp(34px,8vw,48px);margin:0 0 clamp(24px,5vh,48px);filter:url(#pencil)}
+ol{list-style:none;margin:0;padding:0;display:grid;gap:clamp(22px,4vh,40px)}
+a{color:inherit;text-decoration:none;display:grid;gap:6px;padding:8px;margin:-8px;border-radius:8px}
+a:focus-visible{outline:2px solid var(--staff)}
+.ink{display:block;background:var(--ink);-webkit-mask:var(--src) left/contain no-repeat;mask:var(--src) left/contain no-repeat;height:clamp(34px,7vw,48px);width:100%}
+.meta{font-size:clamp(22px,5.4vw,27px);filter:url(#pencil);opacity:.75}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="pencil" x="-2%" y="-2%" width="104%" height="104%"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="3" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="1.8" xChannelSelector="R" yChannelSelector="G" result="d"/><feTurbulence type="fractalNoise" baseFrequency="1.4" numOctaves="1" seed="9" result="g"/><feColorMatrix in="g" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.4 1.85" result="ga"/><feComposite in="d" in2="ga" operator="in"/></filter></svg>
+<main>
+  <h1>지난 공연들</h1>
+  <ol id="shows"></ol>
+</main>
+<script>
+fetch('shows/index.json',{cache:'no-cache'}).then(r=>r.json()).then(list=>{
+  list.sort((a,b)=>b.date.localeCompare(a.date));
+  document.getElementById('shows').innerHTML=list.map(s=>`<li><a href="shows/${s.path}">
+    <span class="ink" role="img" aria-label="${s.title}" style="--src:url('${new URL('shows/'+s.path+s.heading,location.href).href}')"></span>
+    <span class="meta">${s.date.replaceAll('-','.')} · ${s.event||''} · ${s.title}</span></a></li>`).join('');
+});
+</script>
+</body>
+</html>

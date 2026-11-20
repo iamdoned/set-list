@@ -1,0 +1,11 @@
+/* blush — pale rose paper, deep wine ink, wine staff. Follows light/dark. */
+:root{
+  color-scheme:light dark;
+  --bg:light-dark(#f7e9e8,#221418);
+  --ink:light-dark(#4a1d2a,#f5dde2);
+  --mark:var(--ink);
+  --staff:light-dark(#8c2f4b,#e98fab);
+  --staff-alpha:.5;
+  --lyrics-font:"Nanum Pen Script";
+  --lyrics-size:clamp(26px,7vw,33px);
+}

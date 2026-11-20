@@ -1,0 +1,11 @@
+/* cyanotype — blueprint-blue paper, white handwriting, pale sky staff. Always this colour. */
+:root{
+  color-scheme:dark;
+  --bg:#1d3f72;
+  --ink:#f4f1e8;
+  --mark:#f4f1e8;
+  --staff:#a9cbf0;
+  --staff-alpha:.75;
+  --lyrics-font:"Nanum Brush Script";
+  --lyrics-size:clamp(25px,6.6vw,31px);
+}
