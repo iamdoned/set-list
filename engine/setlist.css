@@ -49,27 +49,25 @@ body.song #song{display:block;animation:rise .6s cubic-bezier(.2,.7,.2,1)}
 .navbtn svg{width:30px;height:30px;stroke:var(--ink);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 #close{position:absolute;top:clamp(20px,4vh,40px);right:16px}
 
-/* stage (iPad) */
+/* stage (iPad): a printed sheet on the music stand — nothing moves, nothing is highlighted */
 .qr{display:none}
-body.stage main{max-width:none;padding:6vh 6vw 24px;display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:5vw;align-items:start}
-body.stage{--u:min(.62px,calc(60vw/var(--maxw,1400)),calc(56vh/(var(--n,5)*228 - 70)))}
-body.stage .heading,body.stage .subject,body.stage .insta{display:none}
-body.stage .list{margin-top:0}
-body.stage .staff{margin-left:-6vw}
-body.stage .list .ink{opacity:.28}
-body.stage .list button.on .ink{opacity:1}
-body.stage .qr{display:grid;justify-items:center;gap:14px;grid-column:2;grid-row:1;padding-top:2vh}
-.qrbox{width:min(26vw,40vh);aspect-ratio:1;background:#f7f4ec;border-radius:12px;padding:4%}
-.qrbox svg{display:block;width:100%;height:100%}
-.qrbox path{fill:#1b1a18} /* always dark on light: phone cameras read that best */
-.qr .handle{font-size:clamp(26px,3vw,40px)}
-
-/* stage, iPad upright: list on top, QR underneath */
+body.stage{color-scheme:light;--bg:#f3ede2;--ink:#26211d;--staff:#993556;--staff-alpha:.5;
+  --u:min(.6px,calc(56vw/var(--maxw,1400)),calc((80vh - 90px)/1640))}
+html:has(body.stage){background:#f3ede2}
+body.stage main{max-width:none;min-height:100vh;padding:6vh 6vw 4vh;display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:5vw;align-items:start}
+body.stage .insta{display:none}
+body.stage .list button{cursor:default}
+body.stage .mark{display:none}
+body.stage .staff{position:fixed;left:0;right:0;bottom:0;width:100vw;margin:0;height:100px}
+body.stage .qr{display:grid;justify-items:center;gap:10px;grid-column:2;grid-row:1;align-self:center}
+.qrbox{width:min(24vw,34vh);aspect-ratio:1;filter:url(#pencil-soft)}
+.qrbox svg{display:block;width:100%;height:100%;overflow:visible}
+.qrbox path{fill:var(--ink)}
+.qr .handle{font-size:clamp(26px,2.8vw,38px)}
 @media (orientation:portrait){
-  body.stage main{grid-template-columns:minmax(0,1fr);row-gap:4vh;padding-top:5vh}
-  body.stage{--u:min(.7px,calc(86vw/var(--maxw,1400)),calc(46vh/(var(--n,5)*228 - 70)))}
-  body.stage .qr{grid-column:1;grid-row:2;padding-top:0}
-  body.stage .qrbox{width:min(36vw,20vh)}
-  body.stage .staff{margin-left:-6vw;height:130px}
+  body.stage{--u:min(.66px,calc(86vw/var(--maxw,1400)),calc((58vh - 40px)/1640))}
+  body.stage main{grid-template-columns:minmax(0,1fr);row-gap:3vh;padding-top:5vh}
+  body.stage .qr{grid-column:1;grid-row:2;align-self:start}
+  body.stage .qrbox{width:min(34vw,19vh)}
 }
 @media(prefers-reduced-motion:reduce){.mark path,body.song #song{transition:none;animation:none}}

@@ -6,7 +6,7 @@
   Routes (location.hash):
     (none)      set list
     #song-N     song N with lyrics
-    #stage      iPad stage view: big list + QR; tap anywhere = next song
+    #stage      iPad stage view: the whole sheet + QR, like a printed page on a music stand
   Query:
     ?theme=NAME preview another theme without editing show.json
 */
@@ -56,7 +56,7 @@
   // ---------- markup ----------
   const handle = show.instagram ? `@${show.instagram}` : '';
   body.insertAdjacentHTML('afterbegin', `
-<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="pencil" x="-2%" y="-2%" width="104%" height="104%"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="3" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="1.8" xChannelSelector="R" yChannelSelector="G" result="d"/><feTurbulence type="fractalNoise" baseFrequency="1.4" numOctaves="1" seed="9" result="g"/><feColorMatrix in="g" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.4 1.85" result="ga"/><feComposite in="d" in2="ga" operator="in"/></filter></svg>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="pencil" x="-2%" y="-2%" width="104%" height="104%"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="3" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="1.8" xChannelSelector="R" yChannelSelector="G" result="d"/><feTurbulence type="fractalNoise" baseFrequency="1.4" numOctaves="1" seed="9" result="g"/><feColorMatrix in="g" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.4 1.85" result="ga"/><feComposite in="d" in2="ga" operator="in"/></filter><filter id="pencil-soft" x="-2%" y="-2%" width="104%" height="104%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="5" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="1.3" xChannelSelector="R" yChannelSelector="G"/></filter></svg>
 <main>
   <section id="home">
     ${show.heading ? `<h1 class="heading">${ink(show.heading.src, headSize, '', show.heading.alt)}</h1>` : ''}
@@ -82,7 +82,7 @@
 
   // ---------- hand-drawn pencil marks ----------
   const rnd = n => { const x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
-  const f1 = v => v.toFixed(1);
+  const f1 = v => v.toFixed(2);
   function oval(i, sx, sy) {
     const pts = [], a0 = 3.4 + rnd(i * 7) * .5, turn = Math.PI * 2 * (1.09 + rnd(i + 3) * .05), K = 46;
     for (let k = 0; k <= K; k++) {
@@ -122,7 +122,7 @@
   // ---------- state + routing ----------
   const LEVEL = show.staff?.levels || songs.map((_, i) => .1 + .26 * i / Math.max(1, N - 1));
   const IDLE = show.staff?.idle ?? .3;
-  let cur = -1, target = IDLE, stage = false;
+  let cur = -1, target = IDLE, stage = false, rgbDirty = false;
   function mark(i) { cur = i; btns.forEach((b, j) => b.classList.toggle('on', j === i)); target = i < 0 ? IDLE : (LEVEL[i] ?? IDLE); }
   function openSong(i) {
     const s = songs[i], [w, h] = songSizes[i], b = $('bigTitle');
@@ -135,24 +135,19 @@
     stage = h === 'stage'; body.classList.toggle('stage', stage);
     const m = /^song-(\d+)$/.exec(h), i = m ? +m[1] - 1 : -1;
     if (i >= 0 && i < N && !stage) openSong(i);
-    else { body.classList.remove('song'); $('home').appendChild($('gl')); if (!stage) mark(-1); else if (cur < 0) mark(0); }
+    else { body.classList.remove('song'); $('home').appendChild($('gl')); mark(-1); }
+    rgbDirty = true;
     if (stage) wake();
   }
   list.addEventListener('click', e => {
     const b = e.target.closest('button'); if (!b) return;
-    if (stage) { mark((cur + 1) % N); return; }
+    if (stage) return;
     const i = +b.dataset.i; mark(i);
     setTimeout(() => { location.hash = 'song-' + (i + 1); }, 420);
   });
   $('prev').onclick = () => { location.hash = 'song-' + ((cur + N - 1) % N + 1); };
   $('next').onclick = () => { location.hash = 'song-' + ((cur + 1) % N + 1); };
   $('close').onclick = () => { location.hash = 'list'; };
-  document.addEventListener('click', e => { if (stage && !e.target.closest('button,a')) mark((cur + 1) % N); });
-  addEventListener('keydown', e => {
-    if (!stage) return;
-    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); mark((cur + 1) % N); }
-    if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); mark((cur + N - 1) % N); }
-  });
   addEventListener('hashchange', route);
 
   // keep the iPad screen on in stage mode
@@ -165,8 +160,13 @@
     const url = show.url || location.href.split('#')[0].split('?')[0];
     const q = qrcode(0, 'M'); q.addData(url); q.make();
     const n = q.getModuleCount(); let d = '';
-    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) d += `M${c} ${r}h1v1h-1z`;
-    $('qrbox').innerHTML = `<svg viewBox="-2 -2 ${n + 4} ${n + 4}" shape-rendering="crispEdges" role="img" aria-label="${esc(url)}"><path d="${d}"/></svg>`;
+    // each module is a slightly uneven, softly rounded pencil square (kept within scanning tolerance)
+    const sq = (x, y, k) => { const j = (a) => (rnd(k * 13 + a) - .5) * .06, s = 1.04 + j(1), r = .2;
+      const x0 = x - .02 + j(2), y0 = y - .02 + j(3), x1 = x0 + s, y1 = y0 + s;
+      return `M${f1(x0 + r)} ${f1(y0)}H${f1(x1 - r)}Q${f1(x1)} ${f1(y0)} ${f1(x1)} ${f1(y0 + r)}V${f1(y1 - r)}Q${f1(x1)} ${f1(y1)} ${f1(x1 - r)} ${f1(y1)}H${f1(x0 + r)}Q${f1(x0)} ${f1(y1)} ${f1(x0)} ${f1(y1 - r)}V${f1(y0 + r)}Q${f1(x0)} ${f1(y0)} ${f1(x0 + r)} ${f1(y0)}Z`; };
+    let k = 0;
+    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) d += sq(c, r, ++k);
+    $('qrbox').innerHTML = `<svg viewBox="-1 -1 ${n + 2} ${n + 2}" role="img" aria-label="${esc(url)}"><path d="${d}"/></svg>`;
   }
 
   route();
@@ -198,14 +198,15 @@
   const glRO = new ResizeObserver(resize); glRO.observe(cv); resize();
   const probe = document.createElement('span'); probe.style.cssText = 'position:absolute;width:0;height:0;color:var(--staff)'; body.appendChild(probe);
   const col = () => { const v = getComputedStyle(probe).color, n = (v.match(/[\d.]+/g) || [153, 53, 86]).map(Number).slice(0, 3); return v.startsWith('color(') ? n : n.map(z => z / 255); };
-  const alpha = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--staff-alpha')) || .55;
+  const alpha = () => parseFloat(getComputedStyle(body).getPropertyValue('--staff-alpha')) || .55;
   let rgb = col(), al = alpha();
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { rgb = col(); });
   let k = IDLE; const t0 = performance.now();
   const frame = now => {
+    if (rgbDirty) { rgb = col(); al = alpha(); rgbDirty = false; }
     k += (target - k) * .025;
     gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
-    gl.uniform2f(U.r, cv.width, cv.height); gl.uniform1f(U.t, (now - t0) / 1000 * (still ? .35 : 1));  // reduced motion: slower, not frozen gl.uniform1f(U.k, k);
+    gl.uniform2f(U.r, cv.width, cv.height); gl.uniform1f(U.t, stage ? 0 : (now - t0) / 1000 * (still ? .35 : 1));  // reduced motion: slower, not frozen gl.uniform1f(U.k, k);
     gl.uniform1f(U.d, dpr); gl.uniform3f(U.c, ...rgb); gl.uniform1f(U.al, al);
     gl.drawArrays(gl.TRIANGLES, 0, 3); requestAnimationFrame(frame);
   };
