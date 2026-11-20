@@ -57,6 +57,7 @@
   const handle = show.instagram ? `@${show.instagram}` : '';
   body.insertAdjacentHTML('afterbegin', `
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="pencil" x="-2%" y="-2%" width="104%" height="104%"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="3" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="1.8" xChannelSelector="R" yChannelSelector="G" result="d"/><feTurbulence type="fractalNoise" baseFrequency="1.4" numOctaves="1" seed="9" result="g"/><feColorMatrix in="g" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.4 1.85" result="ga"/><feComposite in="d" in2="ga" operator="in"/></filter><filter id="pencil-soft" x="-2%" y="-2%" width="104%" height="104%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="5" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="1.3" xChannelSelector="R" yChannelSelector="G"/></filter></svg>
+<button id="close" class="navbtn back" type="button" aria-label="셋리스트로 돌아가기"><svg viewBox="0 0 30 30"><path d="M18.5 6.5 10 15l8.5 8.5"/></svg></button>
 <main>
   <section id="home">
     ${show.heading ? `<h1 class="heading">${ink(show.heading.src, headSize, '', show.heading.alt)}</h1>` : ''}
@@ -66,7 +67,6 @@
     <canvas id="gl" class="staff" aria-hidden="true"></canvas>
   </section>
   <section id="song" aria-live="polite">
-    <button id="close" class="navbtn" type="button" aria-label="셋리스트로 돌아가기"><svg viewBox="0 0 30 30"><path d="M7 7 23 23M23 7 7 23"/></svg></button>
     <span class="ink big" id="bigTitle" role="img"></span>
     <div class="lyrics hand" id="lyrics"></div>
     <div class="nav">

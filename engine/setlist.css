@@ -41,13 +41,17 @@ main{position:relative;max-width:720px;margin:0 auto;padding:clamp(40px,8vh,88px
 body.song #home{display:none}
 body.song #song{display:block;animation:rise .6s cubic-bezier(.2,.7,.2,1)}
 @keyframes rise{from{opacity:0;transform:translateY(12px)}}
-#song .big{--u:min(.5px,calc((100vw - 48px)/var(--maxw,1400)));margin-top:clamp(20px,10vh,120px)}
+#song .big{--u:min(.5px,calc((100vw - 48px)/var(--maxw,1400)));margin-top:clamp(36px,9vh,110px)}
 .lyrics{margin:clamp(26px,5vh,48px) 0 0;font-size:var(--lyrics-size);line-height:1.75}
 .lyrics p{margin:0 0 1.15em}
 .nav{display:flex;justify-content:space-between;align-items:center;margin-top:clamp(40px,10vh,100px)}
 .navbtn{display:grid;place-items:center;width:48px;height:48px;margin:0;padding:0}
 .navbtn svg{width:30px;height:30px;stroke:var(--ink);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
-#close{position:absolute;top:clamp(20px,4vh,40px);right:16px}
+/* back to the list: follows you down the lyrics */
+.back{display:none;position:fixed;z-index:5;top:calc(env(safe-area-inset-top) + 12px);left:12px;border-radius:50%;
+  background:color-mix(in srgb,var(--bg) 82%,transparent);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+body.song .back{display:grid}
+body.stage .back{display:none}
 
 /* stage (iPad): a printed sheet on the music stand — nothing moves, nothing is highlighted */
 .qr{display:none}
