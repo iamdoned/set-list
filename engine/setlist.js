@@ -150,6 +150,11 @@
   $('close').onclick = () => { location.hash = 'list'; };
   addEventListener('hashchange', route);
 
+  // stage on a laptop: double-click or press F for true full screen (no browser bar)
+  const toggleFs = () => { const d = document; if (d.fullscreenElement || d.webkitFullscreenElement) (d.exitFullscreen || d.webkitExitFullscreen).call(d); else { const e = d.documentElement; (e.requestFullscreen || e.webkitRequestFullscreen)?.call(e)?.catch?.(() => {}); } };
+  document.addEventListener('dblclick', () => { if (stage) toggleFs(); });
+  addEventListener('keydown', e => { if (stage && (e.key === 'f' || e.key === "F")) toggleFs(); });
+
   // keep the iPad screen on in stage mode
   let lock = null;
   function wake() { if (!('wakeLock' in navigator) || lock) return; navigator.wakeLock.request('screen').then(l => { lock = l; l.onrelease = () => { lock = null; }; }).catch(() => {}); }

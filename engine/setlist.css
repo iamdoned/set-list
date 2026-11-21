@@ -1,4 +1,6 @@
 /* Set-list engine styles. Colours and fonts come from a theme file in /themes. */
+/* bundled so lyrics keep their hand-written look even without internet (SIL OFL, see fonts/OFL.txt) */
+@font-face{font-family:"Nanum Brush Script";src:local("Nanum Brush Script"),local("NanumBrushScript-Regular"),url(fonts/NanumBrushScript-Regular.ttf) format("truetype");font-display:swap}
 *{box-sizing:border-box;min-width:0}
 html,body{margin:0;min-height:100%}
 body{background:var(--bg);color:var(--ink);overflow-x:clip;-webkit-tap-highlight-color:transparent;
